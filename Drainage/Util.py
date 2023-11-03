@@ -30,36 +30,43 @@ class util:
             "SK", "FLAT", "FD", "FA", "SG", "ST", "STV", "CAT"
         )
 
-    def enum(*sequential, **named):
+    def enum(*sequential: str, **named: str):
         enums = dict(zip(sequential, range(len(sequential))), **named)
         reverse = dict((value, key) for key, value in enums.items())
         enums["reverse_mapping"] = reverse
         return type("Enum", (), enums)
 
     # Taudem path 받아 오기
-    def GetTaudemPath(self):
-        tauPath = "C:\\Program Files\\TauDEM\\TauDEM5Exe\\"
-        return tauPath
+    def get_taudem_path(self):
+        tau_path = "C:\\Program Files\\TauDEM\\TauDEM5Exe\\"
+        return tau_path
 
-    def Execute(self, arg):
-        CREATE_NO_WINDOW = 0x08000000
-        value = call(arg, creationflags=CREATE_NO_WINDOW)
+    def execute(self, arg: str):
+        create_no_window = 0x08000000
+        value = call(arg, creationflags=create_no_window)
         return value
 
     # 각각의 기능별로 arg를 생성하고 반환 하는 기능
-    def GetTaudemArg(self, inputfile, ouputfile, taudemcommand, facoption, optionvalue):
+    def get_taudem_arg(
+        self,
+        inputfile: str,
+        ouputfile: str,
+        taudemcommand: str,
+        facoption: str,
+        optionvalue: str,
+    ):
         option = optionvalue
-        tauPath = self.GetTaudemPath()
+        tau_path = self.GetTaudemPath()
         input = inputfile.replace("\\", "\\\\")
         output = ouputfile.replace("\\", "\\\\")
-        output_Temp = self.GetTempFilePath(ouputfile)
+        output_temp = self.GetTempFilePath(ouputfile)
 
         arg = ""
         if taudemcommand == self.tauDEMCommand.SK:
-            tauPath = tauPath + "PitRemove.exe"
+            tau_path = tau_path + "PitRemove.exe"
             arg = (
                 '"'
-                + tauPath
+                + tau_path
                 + '"'
                 + " -z "
                 + '"'
@@ -71,10 +78,10 @@ class util:
                 + '"'
             )
         elif taudemcommand == self.tauDEMCommand.FD:
-            tauPath = tauPath + "D8FlowDir.exe"
+            tau_path = tau_path + "D8FlowDir.exe"
             arg = (
                 '"'
-                + tauPath
+                + tau_path
                 + '"'
                 + " -fel "
                 + '"'
@@ -86,15 +93,15 @@ class util:
                 + '"'
                 + " -sd8 "
                 + '"'
-                + output_Temp
+                + output_temp
                 + '"'
             )
         elif taudemcommand == self.tauDEMCommand.FA:
-            tauPath = tauPath + "AreaD8.exe"
+            tau_path = tau_path + "AreaD8.exe"
             if str(facoption) == "True":
                 arg = (
                     '"'
-                    + tauPath
+                    + tau_path
                     + '"'
                     + " -p "
                     + '"'
@@ -108,7 +115,7 @@ class util:
             else:
                 arg = (
                     '"'
-                    + tauPath
+                    + tau_path
                     + '"'
                     + " -p "
                     + '"'
@@ -121,10 +128,10 @@ class util:
                     + " -nc "
                 )
         elif taudemcommand == self.tauDEMCommand.SG:
-            tauPath = tauPath + "D8FlowDir.exe"
+            tau_path = tau_path + "D8FlowDir.exe"
             arg = (
                 '"'
-                + tauPath
+                + tau_path
                 + '"'
                 + " -fel "
                 + '"'
@@ -132,7 +139,7 @@ class util:
                 + '"'
                 + " -p "
                 + '"'
-                + output_Temp
+                + output_temp
                 + '"'
                 + " -sd8 "
                 + '"'
@@ -140,10 +147,10 @@ class util:
                 + '"'
             )
         elif taudemcommand == self.tauDEMCommand.ST:
-            tauPath = tauPath + "Threshold.exe"
+            tau_path = tau_path + "Threshold.exe"
             arg = (
                 '"'
-                + tauPath
+                + tau_path
                 + '"'
                 + " -ssa "
                 + '"'
@@ -158,8 +165,13 @@ class util:
             )
         return arg
 
-    def GetCacthmentsArg(
-        self, input_layer, fd_layer, fa_layer, stream_Layer, txtoutput
+    def get_cacthments_arg(
+        self,
+        input_layer: str,
+        fd_layer: str,
+        fa_layer: str,
+        stream_layer: str,
+        txtoutput: str,
     ):
         output1 = self.GetTempFilePath(input_layer)
         output2 = output1.replace("tif", "dat")
@@ -169,12 +181,12 @@ class util:
         input0 = input_layer
         input1 = fd_layer
         input2 = fa_layer
-        input3 = stream_Layer
-        tauPath = self.GetTaudemPath()
-        tauPath = tauPath + "StreamNet.exe"
+        input3 = stream_layer
+        tau_path = self.GetTaudemPath()
+        tau_path = tau_path + "StreamNet.exe"
         arg = (
             '"'
-            + tauPath
+            + tau_path
             + '"'
             + " -fel "
             + '"'
@@ -215,15 +227,15 @@ class util:
         )
         return arg
 
-    def GetWatershed(self, input_layer, shape_layer, output):
-        tauPath = self.GetTaudemPath() + "GageWatershed.exe"
+    def get_watershed(self, input_layer, shape_layer, output):
+        tau_path = self.GetTaudemPath() + "GageWatershed.exe"
         arg = '"{0}" -p "{1}" -o "{2}" -gw "{3}"'.format(
-            tauPath, input_layer, shape_layer, output
+            tau_path, input_layer, shape_layer, output
         )
         return arg
 
     # Watershed 처리
-    def GetWatershedArg(
+    def get_watershed_arg(
         self,
         fill_layer,
         fd_layer,
@@ -234,33 +246,33 @@ class util:
         flag,
     ):
         # shape 파일의 경로를 받아 오면 경로상에 layerid가 붙어서 넘오옴 그래서 문자열 잘라서 사용
-        shpPath = shp_layer.split("|")[0]
+        shp_path = shp_layer.split("|")[0]
 
         # 임시 파일 경로 생성 함수 tempfile.mktemp()
         # tempfile.mktemp() 파이썬 기본 모듈로 파일을 같은 경로로 옮기고 사용
-        temOutput = tempfile.mktemp() + ".tif"
-        temOutput2 = tempfile.mktemp() + ".tif"
-        temOutput3 = tempfile.mktemp() + ".tif"
-        streamOutput = tempfile.mktemp() + ".tif"
+        tem_output = tempfile.mktemp() + ".tif"
+        tem_output_2 = tempfile.mktemp() + ".tif"
+        tem_output_3 = tempfile.mktemp() + ".tif"
+        stream_output = tempfile.mktemp() + ".tif"
 
         temptif = tempfile.mktemp() + ".tif"
         tempdat = tempfile.mktemp() + ".dat"
         tempdat2 = tempfile.mktemp() + ".dat"
-        tempShape = (
-            os.path.dirname(shpPath)
+        temp_shape = (
+            os.path.dirname(shp_path)
             + "\\"
-            + os.path.basename(shpPath).replace(".shp", "_net.shp")
+            + os.path.basename(shp_path).replace(".shp", "_net.shp")
         )
 
-        tauPathAread8 = self.GetTaudemPath() + "Aread8.exe"
-        tauPathPeukerDouglas = self.GetTaudemPath() + "PeukerDouglas.exe"
-        tauPthThreshold = self.GetTaudemPath() + "Threshold.exe"
-        tauPathStreamnet = self.GetTaudemPath() + "Streamnet.exe"
+        tau_path_aread8 = self.GetTaudemPath() + "Aread8.exe"
+        tau_path_peuker_douglas = self.GetTaudemPath() + "PeukerDouglas.exe"
+        tau_path_threshold = self.GetTaudemPath() + "Threshold.exe"
+        tau_path_treamnet = self.GetTaudemPath() + "Streamnet.exe"
 
         returns = "1"
         arg = (
             '"'
-            + tauPathAread8
+            + tau_path_aread8
             + '"'
             + " -p "
             + '"'
@@ -268,11 +280,11 @@ class util:
             + '"'
             + " -ad8 "
             + '"'
-            + temOutput
+            + tem_output
             + '"'
             + " -o "
             + '"'
-            + shpPath
+            + shp_path
             + '"'
         )
         re = self.Execute(arg)
@@ -280,7 +292,7 @@ class util:
         if str(re) == "0":
             arg = (
                 '"'
-                + tauPathPeukerDouglas
+                + tau_path_peuker_douglas
                 + '"'
                 + " -fel "
                 + '"'
@@ -288,7 +300,7 @@ class util:
                 + '"'
                 + " -ss "
                 + '"'
-                + temOutput2
+                + tem_output_2
                 + '"'
             )
             re1 = self.Execute(arg)
@@ -296,7 +308,7 @@ class util:
             if str(re1) == "0":
                 arg = (
                     '"'
-                    + tauPathAread8
+                    + tau_path_aread8
                     + '"'
                     + " -p "
                     + '"'
@@ -304,15 +316,15 @@ class util:
                     + '"'
                     + " -ad8 "
                     + '"'
-                    + temOutput3
+                    + tem_output_3
                     + '"'
                     + " -o "
                     + '"'
-                    + shpPath
+                    + shp_path
                     + '"'
                     + " -wg "
                     + '"'
-                    + temOutput2
+                    + tem_output_2
                     + '"'
                 )
                 re2 = self.Execute(arg)
@@ -321,15 +333,15 @@ class util:
                     # stream Create
                     arg = (
                         '"'
-                        + tauPthThreshold
+                        + tau_path_threshold
                         + '"'
                         + " -ssa "
                         + '"'
-                        + temOutput3
+                        + tem_output_3
                         + '"'
                         + " -src "
                         + '"'
-                        + streamOutput
+                        + stream_output
                         + '"'
                         + " -thresh "
                         + txtstream_cellvalue
@@ -339,7 +351,7 @@ class util:
                     if str(re3) == "0":
                         arg = (
                             '"'
-                            + tauPathStreamnet
+                            + tau_path_treamnet
                             + '"'
                             + " -fel "
                             + '"'
@@ -355,7 +367,7 @@ class util:
                             + '"'
                             + " -src "
                             + '"'
-                            + streamOutput
+                            + stream_output
                             + '"'
                             + " -ord "
                             + '"'
@@ -371,7 +383,7 @@ class util:
                             + '"'
                             + " -net "
                             + '"'
-                            + tempShape
+                            + temp_shape
                             + '"'
                             + " -w "
                             + '"'
@@ -379,7 +391,7 @@ class util:
                             + '"'
                             + " -o "
                             + '"'
-                            + shpPath
+                            + shp_path
                             + '"'
                         )
                         if str(flag) == "True":
@@ -391,13 +403,13 @@ class util:
         return returns
 
     # 윈도우 임시 폴더에 임시 파일 생성
-    def GetTempFilePath(self, tempfilepath):
+    def get_temp_file_path(self, tempfilepath: str):
         output_temp = win32api.GetTempPath() + os.path.basename(tempfilepath)
         output_temp = output_temp.replace("\\", "\\\\")
         return output_temp
 
     # 콤보박스 리스트 셋팅 type은( tif, shp , "" 일땐 모두다)
-    def SetCommbox(self, layers, commbox, type):
+    def set_commbox(self, layers, commbox, type):
         layer_list = []
 
         if layers == None:
@@ -426,14 +438,14 @@ class util:
         commbox.addItems(combolist)
 
     # 메시지 박스 출력
-    def MessageboxShowInfo(self, title, message):
+    def messagebox_show_info(self, title, message):
         QMessageBox.information(None, title, message)
 
-    def MessageboxShowError(self, title, message):
+    def messagebox_show_error(self, title, message):
         QMessageBox.warning(None, title, message)
 
     # 콤보 박스에서 선택된 레이어 경로 받아 오기
-    def GetcomboSelectedLayerPath(self, commbox):
+    def get_combo_selected_layer_path(self, commbox):
         layername = commbox.currentText()
         layer = None
         for lyr in QgsProject.instance().mapLayers().values():
@@ -442,7 +454,7 @@ class util:
         return layer.dataProvider().dataSourceUri()
 
     # 파일 존재 유무 확인
-    def CheckFile(self, path):
+    def check_file(self, path):
         filepath = path.replace("\\", "\\\\")
         if os.path.isfile(filepath):
             return True
@@ -450,21 +462,21 @@ class util:
             return False
 
     # 폴더 경로 맞는지 확인
-    def CheckFolder(self, path):
+    def check_folder(self, path):
         filepath = path.replace("\\", "\\\\")
         if os.path.isdir(filepath):
             return True
         else:
             return False
 
-    def CheckTaudem(self):
+    def check_taudem(self):
         if os.path.isdir("C:\\Program Files\\TauDEM"):
             return True
         else:
             return False
 
     # 폴더및 파일 명칭에 한글 포함하고 있는지 체크
-    def CheckKorea(self, string):
+    def check_korea(self, string: str):
         #         sys.setdefaultencoding('utf-8')
         strs = re.sub("[^가-힣]", "", string)
         if len(strs) > 0:
@@ -473,90 +485,87 @@ class util:
             return False
 
     # 파일 경로 중에 파일명만 받아 오기
-    def GetFilename(self, filename):
+    def get_filename(self, filename: str):
         s = os.path.splitext(filename)
         s = os.path.split(s[0])
         return s[1]
 
-    # def Convert_TIFF_To_ASCii(self,inputfile):
-    #     # nodata 설정옵션이 Gdal 에서 안먹음
-    #     Extension=""
-    #     Extension=os.path.splitext(inputfile)[1]
-    #     Output = inputfile.replace(Extension,".asc")
-    #     gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
-    #     # arg = '"{0}" -of AAIGrid -ot Float64 -a_nodata -9999 --config GDAL_FILENAME_IS_UTF8 NO "{1}" "{2}"'.format(gdal_translate,inputfile,Output)
-    #     arg = '"{0}" -of AAIGrid "{1}" "{2}"'.format(gdal_translate, inputfile, Output)
-    #     result=self.Execute(arg)
-    #     if result == 0 :
-    #         # self.ASC_Header_replace(Output)
-    #         self.Addlayer_OutputFile(Output)
-
-    def Convert_TIFF_To_ASCii(self, inputfile):
+    def convert_tiff_to_ascii(self, inputfile: str):
         # nodata 설정옵션이 Gdal 에서 안먹음
-        Extension = os.path.splitext(inputfile)[1]
-        Output = inputfile.replace(Extension, ".asc")
-        qgisPath = QgsApplication.instance().applicationDirPath()
-        gdal_translate = qgisPath + r"\gdal_translate.exe"
+        extension = os.path.splitext(inputfile)[1]
+        output = inputfile.replace(extension, ".asc")
+        qgis_path = QgsApplication.instance().applicationDirPath()
+        gdal_translate = qgis_path + r"\gdal_translate.exe"
         arg = '"{0}" -of AAIGrid -co FORCE_CELLSIZE=TRUE "{1}" "{2}"'.format(
-            gdal_translate, inputfile, Output
+            gdal_translate, inputfile, output
         )
         result = self.Execute(arg)
         if result >= 0:
-            self.ASC_Header_replace(Output)
-            self.Addlayer_OutputFile(Output)
+            self.ASC_Header_replace(output)
+            self.addlayer_output_file(output)
 
-    def Convert_ASCii_To_TIFF(self, inputfile, OutFile):
+    def convert_ascii_to_tiff(self, inputfile: str, out_file: str):
         gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
-        arg = '"{0}" -of GTiff  "{1}" "{2}"'.format(gdal_translate, inputfile, OutFile)
+        arg = '"{0}" -of GTiff  "{1}" "{2}"'.format(
+            gdal_translate, inputfile, qgis_path
+        )
         self.Execute(arg)
-        # self.Addlayer_OutputFile(Output)
+        # self.addlayer_output_file(output)
 
-    def Convert_TIFF_To_ASCii_retpaht(self, inputfile):
-        Extension = ""
-        Extension = os.path.splitext(inputfile)[1]
-        Output = inputfile.replace(Extension, "_Flat.asc")
+    def convert_tiff_to_ascii_retpaht(self, inputfile: str):
+        extension = ""
+        extension = os.path.splitext(inputfile)[1]
+        output = inputfile.replace(extension, "_Flat.asc")
         gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
-        # arg = '"{0}" -of AAIGrid -ot Float64 -a_nodata -9999 --config GDAL_FILENAME_IS_UTF8 NO "{1}" "{2}"'.format(gdal_translate,inputfile,Output)
-        arg = '"{0}" -of AAIGrid "{1}" "{2}"'.format(gdal_translate, inputfile, Output)
+        arg = '"{0}" -of AAIGrid "{1}" "{2}"'.format(
+            gdal_translate,
+            inputfile,
+            output,
+        )
         result = self.Execute(arg)
-        return Output
+        return output
 
     # 레스터 레이어 목록 Qgis에 올리기
-    def Addlayer_OutputFile(self, outputpath):
+    def addlayer_output_file(self, outputpath: str):
         if os.path.isfile(outputpath):
-            fileName = outputpath
-            fileInfo = QFileInfo(fileName)
-            baseName = fileInfo.baseName()
-            layer = QgsRasterLayer(fileName, baseName, "gdal")
+            file_name = outputpath
+            file_info = QFileInfo(file_name)
+            base_name = file_info.base_name()
+            layer = QgsRasterLayer(file_name, base_name, "gdal")
             QgsProject.instance().addMapLayer(layer)
 
-    #             QgsProject.instance().addRasterLayer(fileName, baseName)
+    #   QgsProject.instance().addRasterLayer(fileName, baseName)
 
-    def VectorLayer_AddLayer(self, outputpath):
-        fileName = outputpath
-        fileInfo = QFileInfo(fileName)
-        baseName = fileInfo.baseName()
-        layer = QgsVectorLayer(outputpath, baseName, "ogr")
+    def vector_layer_add_layer(self, outputpath: str):
+        file_name = outputpath
+        file_info = QFileInfo(file_name)
+        base_name = file_info.base_name()
+        layer = QgsVectorLayer(outputpath, base_name, "ogr")
         QgsProject.instance().addMapLayer(layer)
         if not layer:
-            self.MessageboxShowInfo("Vector layer add", "Layer failed to load!")
+            self.MessageboxShowInfo(
+                "Vector layer add",
+                "Layer failed to load!",
+            )
 
-    def ASC_Header_replace(self, asc_file):
+    def asc_header_replace(self, asc_file: str):
         nodata = self.ASC_Header_nodata(asc_file)
         if nodata != "" or nodata == "-9999":
             self.ASC_Replace_data(nodata, asc_file)
 
-    def ASC_Header_nodata(self, asc_file):
+    def asc_header_nodata(self, asc_file: str):
         self.nodata = ""
-        dataHeaderItems = open(asc_file).readlines()[:20]
-        read_lower = [item.lower() for item in dataHeaderItems]  # 리스트 의 모든 글자를 소문자화 시킴
+        data_header_items = open(asc_file).readlines()[:20]
+        read_lower = [
+            item.lower() for item in data_header_items
+        ]  # 리스트 의 모든 글자를 소문자화 시킴
         for row in read_lower:
             if "nodata_value" in row:
                 self.nodata = row.replace("nodata_value", "").strip()
                 break
         return self.nodata
 
-    def ASC_Replace_data(self, data, file):
+    def asc_replace_data(self, data: str, file: str):
         # Read contents from file as a single string
         file_handle = open(file, "r")
         file_string = file_handle.read()
