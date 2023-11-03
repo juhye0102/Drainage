@@ -23,14 +23,16 @@
  This script initializes the plugin, making it known to QGIS.
 """
 
+from qgis.utils import iface
+from .drainage import Drainage
+
 
 # noinspection PyPep8Naming
-def classFactory(iface):  # pylint: disable=invalid-name
+def class_factory(iface):  # pylint: disable=invalid-name
     """Load Drainage class from file Drainage.
 
     :param iface: A QGIS interface instance.
     :type iface: QgsInterface
     """
     #
-    from .drainage import Drainage
     return Drainage(iface)
