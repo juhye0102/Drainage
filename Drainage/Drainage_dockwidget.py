@@ -1,32 +1,11 @@
 # -*- coding: utf-8 -*-
-"""
-/***************************************************************************
- DrainageDockWidget
-                                 A QGIS plugin
- Drainage
-                             -------------------
-        begin                : 2017-04-14
-        git sha              : $Format:%H$
-        copyright            : (C) 2017 by HermeSys
-        email                : shpark@hermesys.co.kr
- ***************************************************************************/
 
-/***************************************************************************
- *                                                                         *
- *   This program is free software; you can redistribute it and/or modify  *
- *   it under the terms of the GNU General Public License as published by  *
- *   the Free Software Foundation; either version 2 of the License, or     *
- *   (at your option) any later version.                                   *
- *                                                                         *
- ***************************************************************************/
-"""
-
-import os, sys
-from PyQt5 import uic
-from PyQt5 import *
-from PyQt5.QtCore import *
-from PyQt5.QtGui import *
-from qgis.gui import QgsMapTool
+import os
+from qgis.PyQt import uic
+from qgis.PyQt import *
+from qgis.PyQt.QtCore import Qt
+from qgis.PyQt.QtGui import QAction, QIcon
+from qgis.PyQt.QtWidgets import QMainWindow, QAction, QApplication
 
 # import Qtree
 from .Util import *
@@ -48,7 +27,7 @@ _util = util()
 
 
 class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
-    closingPlugin = pyqtSignal()
+    closing_plugin = pyqtSignal()
 
     def __init__(self, parent=None, iface=None):
         """Constructor."""
@@ -58,7 +37,7 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # 트리 위젯에 메뉴 항목을 넣는 부분임
         self.initUI()
 
-    def initUI(self):
+    def init_ui(self):
         self.setWindowTitle("Drainage")
         # 배경 색상 회색
         # self.treeWidget.setStyleSheet("background-color: gray;")
@@ -74,26 +53,6 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         if result == False:
             _util.MessageboxShowError("Drainage", "Taudem is not installed.")
         item10 = QtWidgets.QTreeWidgetItem(self.treeWidget, ["Drainage"])
-        # 2017-12-14 박: 기존 기능 한개로 통합 (batch processor) 로 변경 기존 파일은 그대로 유지
-        # item11 = QtGui.QTreeWidgetItem(item10, ['Fill Sink'])
-        # icon = QtGui.QIcon(Cube)
-        # item11.setIcon(0, icon)
-        # item12 = QtGui.QTreeWidgetItem(item10, ['Flat'])
-        # icon = QtGui.QIcon(Cube)
-        # item12.setIcon(0, icon)
-        # item13 = QtGui.QTreeWidgetItem(item10, ['Flow Direction'])
-        # icon = QtGui.QIcon(Cube)
-        # item13.setIcon(0, icon)
-        # item14 = QtGui.QTreeWidgetItem(item10, ['Flow Accumulation'])
-        # icon = QtGui.QIcon(Cube)
-        # item14.setIcon(0, icon)
-        # item15 = QtGui.QTreeWidgetItem(item10, ['Slope'])
-        # icon = QtGui.QIcon(Cube)
-        # item15.setIcon(0, icon)
-        # item16 = QtGui.QTreeWidgetItem(item10, ['Stream Definition'])
-        # icon = QtGui.QIcon(Cube)
-        # item16.setIcon(0, icon)
-
         item16 = QtWidgets.QTreeWidgetItem(item10, ["Batch Processor"])
         icon = QtGui.QIcon(Cube)
         item16.setIcon(0, icon)
@@ -123,8 +82,8 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         # 더블 클릭 했을대 메뉴 명칭 확인
         self.treeWidget.itemDoubleClicked.connect(self.onDoubleClick)
 
-    def onDoubleClick(self, item):
-        SelectItme = item.text(0)
+    def on_double_click(self, item):
+        select_item = item.text(0)
         # 2017-12-14 박: 기존 기능 한개로 통합 (batch processor) 로 변경 기존 파일은 그대로 유지
         # if SelectItme =='Flat':
         #     results_dialog = FlatDialog()
@@ -145,14 +104,14 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         #    results_dialog = Stream_DefinitionDialog()
         #    results_dialog.exec_()
 
-        if SelectItme == "Batch Processor":
+        if select_item == "Batch Processor":
             results_dialog = BatchProcessor(iface=self.iface)
             results_dialog.exec_()
 
         # elif SelectItme =='Catchment GRID Delination':
         #     results_dialog = CatchmentDialog()
         #     results_dialog.exec_()
-        elif SelectItme == "Create OutletPoint Layer and Draw OutletPoint":
+        elif select_item == "Create OutletPoint Layer and Draw OutletPoint":
             _util.MessageboxShowInfo(
                 "info",
                 "The base layer and coordinate information must be created identically.",
@@ -160,21 +119,15 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             self.iface.actionNewVectorLayer().trigger()
             # Edit 상태로 변환
             layer = self.iface.activeLayer()
-            #             layer.startEditing() startEditing() 이라는 속성없음.
             # ADD 상태
             self.iface.actionAddFeature().trigger()
-        elif SelectItme == "Watershed":
+        elif select_item == "Watershed":
             results_dialog = WatershedDialog()
             results_dialog.exec_()
-        elif SelectItme == "Helps":
+        elif select_item == "Helps":
             results_dialog = Watershed_StetupDialog()
             results_dialog.exec_()
-        # elif SelectItme =='test':
-        #    layer = Drainage._iface.activeLayer()
-        #    lyrCRS = layer.crs()
-        #    if lyrCRS.isValid():
-        #        _util.MessageboxShowInfo("lyrCRS",str(lyrCRS.toProj4()))
 
-    def closeEvent(self, event):
+    def close_event(self, event):
         self.closingPlugin.emit()
         event.accept()
