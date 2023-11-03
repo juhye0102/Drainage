@@ -207,19 +207,29 @@ class BatchProcessor(QDialog, FORM_CLASS):
     # 파일 경로 변수에 셋팅
     def setting_value(self):
         self.Fill = (
-            os.path.dirname(self.LayerPath) + "\\" + self.txtFill.text() + ".tif",
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtFill.text() + ".tif",
         )
-        self.FD = os.path.dirname(self.LayerPath) + "\\" + self.txtFD.text() + ".tif"
+        self.FD = (
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtFD.text() + ".tif",
+        )
 
-        self.FAC = os.path.dirname(self.LayerPath) + "\\" + self.txtFAC.text() + ".tif"
+        self.FAC = (
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtFAC.text() + ".tif",
+        )
         self.Slope = (
-            os.path.dirname(self.LayerPath) + "\\" + self.txtSlope.text() + ".tif"
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtSlope.text() + ".tif",
         )
         self.Stream = (
-            os.path.dirname(self.LayerPath) + "\\" + self.txtStream.text() + ".tif"
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtStream.text() + ".tif",
         )
         self.Catchment = (
-            os.path.dirname(self.LayerPath) + "\\" + self.txtCatchment.text() + ".tif"
+            os.path.dirname(self.LayerPath),
+            +"\\" + self.txtCatchment.text() + ".tif",
         )
         self.StreamVector = (
             os.path.dirname(self.LayerPath)
@@ -254,7 +264,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
         return streamnet + args
 
     # 텍스트 박스에 파일 이름이 없는 경우 체크
-    def check_textbox(self, txt):
+    def check_textbox(self, txt: str):
         if txt.text() == "":
             _util.MessageboxShowInfo(
                 "Batch Processor",
