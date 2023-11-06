@@ -2,10 +2,9 @@
 from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QFileInfo
 from qgis.core import QgsProject, QgsRasterLayer
-from qgis.utils import iface
 import os
 from qgis.PyQt import uic
-from .Util import *
+from .Util import util
 
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "Batch_Processor_dialog_base.ui")
@@ -35,11 +34,11 @@ class BatchProcessor(QDialog, FORM_CLASS):
             self.txtStreamVector.setText(self.Layername + "_Stream_polyline")
             self.txtCatchment.setText(self.Layername + "_Catchment")
 
-    def is_int(self, anyNumberOrString):
+    def is_int(self, any_number_or_string: int):
         try:
             int(
-                anyNumberOrString
-            )  # to check float and int use "float(anyNumberOrString)"
+                any_number_or_string
+            )  # to check float and int use "float(any_number_or_string)"
             return True
         except ValueError:
             return False
@@ -47,25 +46,26 @@ class BatchProcessor(QDialog, FORM_CLASS):
     def click_okbutton(self):
         # 레이어 경로에 한글이 있으면 오류로 처리
         if _util.CheckKorea(self.LayerPath):
-            _util.MessageboxShowInfo(
-                "Batch Processor", "\n The file path contains Korean. \n"
+            _util.messagebox_show_info(
+                "Batch Processor",
+                "\n The file path contains Korean. \n",
             )
             return
 
         fname, ext = os.path.splitext(self.LayerPath)
         if ext.upper() in ".ASC":
-            # _util.MessageboxShowInfo("1","asc")
+            # _util.messagebox_show_info("1","asc")
             inputfile = self.LayerPath
             self.LayerPath = self.LayerPath.replace(ext, ".TIF")
             _util.Convert_ASCii_To_TIFF(inputfile, self.LayerPath)
-            # _util.MessageboxShowInfo("Layerpath",self.LayerPath)
+            # _util.messagebox_show_info("Layerpath",self.LayerPath)
 
             # return
         elif ext.upper() in ".TIF":
-            # _util.MessageboxShowInfo("1", "tif")
+            # _util.messagebox_show_info("1", "tif")
             pass
         else:
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Batch Processor",
                 "Only ASCII files and TIF file formats are supported.",
             )
@@ -100,7 +100,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
             return
 
         if self.txtCellValue.text() == "":
-            _util.MessageboxShowError(
+            _util.messagebox_show_error(
                 "Batch Processor",
                 " CellValue is required. ",
             )
@@ -109,7 +109,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
 
         vlaue = self.txtCellValue.text()
         if not self.isInt(vlaue):
-            _util.MessageboxShowError(
+            _util.messagebox_show_error(
                 "Batch Processor",
                 " Please enter only integers. ",
             )
@@ -168,7 +168,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
                                 # tif 파일 asc 파일로 변환
                                 self.ConvertTiff_To_Asc()
                                 self.Delete_tempfile()
-                                _util.MessageboxShowInfo(
+                                _util.messagebox_show_info(
                                     "Batch processor",
                                     "The process is complete.",
                                 )
@@ -181,7 +181,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
             # self.Addlayer_OutputFile(outpath)
             return True
         else:
-            _util.MessageboxShowError(
+            _util.messagebox_show_error(
                 "Batch Processor",
                 " There was an error creating the file. ",
             )
@@ -200,7 +200,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
         if os.path.isfile(outputpath):
             file_name = outputpath
             file_info = QFileInfo(file_name)
-            base_name = file_info.baseName()
+            base_name = file_info.base_name()
             layer = QgsRasterLayer(file_name, base_name, "gdal")
             QgsProject.instance().addMapLayer(layer)
 
@@ -266,7 +266,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
     # 텍스트 박스에 파일 이름이 없는 경우 체크
     def check_textbox(self, txt: str):
         if txt.text() == "":
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Batch Processor",
                 " A filename is required. ",
             )
