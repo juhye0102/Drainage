@@ -8,11 +8,11 @@ from qgis.PyQt.QtWidgets import (
     QTextEdit,
 )
 from qgis.PyQt.QtCore import QFileInfo
-from qgis.gui import *
 from qgis.core import QgsVectorLayer, QgsRasterLayer, QgsProject
 import os
-from .Util import *
+from qgis.PyQt.QtCore import QtCore
 from qgis.PyQt import QtGui, uic
+from Util import util
 
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "Watershed_dialog_base.ui")
@@ -64,7 +64,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
         s_index = self.cmbShape.currentIndex()
 
         if r_index == 0:
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n No raster layer selected. \n",
             )
@@ -72,7 +72,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         if s_index == 0:
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n No shape layer selected. \n",
             )
@@ -81,7 +81,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
 
         # 텍스트 박스에 결과 파일 경로가 없을때 오류 메시지 출력
         if self.txtOutput.text() == "":
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n File path not selected. \n",
             )
@@ -90,7 +90,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
 
         # True 면 한글 포함 하고 있음, False 면 한글 없음
         if _util.CheckKorea(self.txtOutput.text()):
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n The file path contains Korean. \n",
             )
@@ -98,7 +98,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
 
         # 선택된 레이어 경로 한글 체크
         if _util.CheckKorea(self.TifPath):
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n selected raster layer path contains Korean. \n",
             )
@@ -106,7 +106,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
 
         # 선택된 레이어 경로 한글 체크
         if _util.CheckKorea(self.Shape):
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n selected shape layer path contains Korean. \n",
             )
@@ -114,7 +114,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
 
         # True 이면 기존 파일 존재함
         if _util.CheckFile(self.txtOutput.text()):
-            _util.MessageboxShowInfo(
+            _util.messagebox_show_info(
                 "Watershed",
                 "\n A file with the same name already exists. \n",
             )
@@ -134,7 +134,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             self.scsr = self.layerCRS(vlayer)
         if self.rcsr != self.scsr:
             self.aboutApp()
-            # _util.MessageboxShowInfo(" Caution!!",
+            # _util.messagebox_show_info(" Caution!!",
             # "If the coordinate system of the two layers are different,
             # there may be a problem in the watershed processing. ")
         self.checkPrjFile(self.Shape)
@@ -149,7 +149,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             self.check_prj_file_back()
             _util.Convert_TIFF_To_ASCii(self.txtOutput.text())
             print("Convert_TIFF_To_ASCii ")
-            _util.MessageboxShowInfo("Watershed", "processor complete")
+            _util.messagebox_show_info("Watershed", "processor complete")
             self.close()
 
     def layer_crs(self, layer):
@@ -249,7 +249,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
         self.btnOpenDialog.clicked.connect(self.Select_Ouput_File)
 
         # OK버튼 눌렀을때 처리 부분
-        self.btnOK.clicked.connect(self.Click_Okbutton)
+        self.btnOK.clicked.connect(self.click_okbutton)
 
         # Cancle버튼 클릭 이벤트
-        self.btnCancel.clicked.connect(self.Close_Form)
+        self.btnCancel.clicked.connect(self.close_form)
