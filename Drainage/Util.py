@@ -17,7 +17,7 @@ import tempfile
 _iface = {}
 
 
-class util:
+class Util:
     def __init__(self):
         self.Input_Layer_Path = ""
         self.FillSink_Layer_Path = ""
@@ -54,12 +54,12 @@ class util:
         taudemcommand: str,
         facoption: str,
         optionvalue: str,
-    ):
+    ) -> str:
         option = optionvalue
-        tau_path = self.GetTaudemPath()
+        tau_path = self.get_taudem_path()
         input = inputfile.replace("\\", "\\\\")
         output = ouputfile.replace("\\", "\\\\")
-        output_temp = self.GetTempFilePath(ouputfile)
+        output_temp = self.get_temp_file_path(ouputfile)
 
         arg = ""
         if taudemcommand == self.tauDEMCommand.SK:
@@ -172,8 +172,8 @@ class util:
         fa_layer: str,
         stream_layer: str,
         txtoutput: str,
-    ):
-        output1 = self.GetTempFilePath(input_layer)
+    ) -> str:
+        output1 = self.get_temp_file_path(input_layer)
         output2 = output1.replace("tif", "dat")
         output3 = output1.replace("tif", "dat")
         output4 = output1.replace("tif", "shp")
@@ -182,7 +182,7 @@ class util:
         input1 = fd_layer
         input2 = fa_layer
         input3 = stream_layer
-        tau_path = self.GetTaudemPath()
+        tau_path = self.get_taudem_path()
         tau_path = tau_path + "StreamNet.exe"
         arg = (
             '"'
@@ -227,8 +227,8 @@ class util:
         )
         return arg
 
-    def get_watershed(self, input_layer, shape_layer, output):
-        tau_path = self.GetTaudemPath() + "GageWatershed.exe"
+    def get_watershed(self, input_layer: str, shape_layer: str, output: str):
+        tau_path = self.get_taudem_path() + "GageWatershed.exe"
         arg = '"{0}" -p "{1}" -o "{2}" -gw "{3}"'.format(
             tau_path, input_layer, shape_layer, output
         )
@@ -237,13 +237,13 @@ class util:
     # Watershed 처리
     def get_watershed_arg(
         self,
-        fill_layer,
-        fd_layer,
-        fa_layer,
-        txtstream_cellvalue,
-        shp_layer,
-        txtoutput,
-        flag,
+        fill_layer: str,
+        fd_layer: str,
+        fa_layer: str,
+        txtstream_cellvalue: str,
+        shp_layer: str,
+        txtoutput: str,
+        flag: str,
     ):
         # shape 파일의 경로를 받아 오면 경로상에 layerid가 붙어서 넘오옴 그래서 문자열 잘라서 사용
         shp_path = shp_layer.split("|")[0]
@@ -264,10 +264,10 @@ class util:
             + os.path.basename(shp_path).replace(".shp", "_net.shp")
         )
 
-        tau_path_aread8 = self.GetTaudemPath() + "Aread8.exe"
-        tau_path_peuker_douglas = self.GetTaudemPath() + "PeukerDouglas.exe"
-        tau_path_threshold = self.GetTaudemPath() + "Threshold.exe"
-        tau_path_treamnet = self.GetTaudemPath() + "Streamnet.exe"
+        tau_path_aread8 = self.get_taudem_path() + "Aread8.exe"
+        tau_path_peuker_douglas = self.get_taudem_path() + "PeukerDouglas.exe"
+        tau_path_threshold = self.get_taudem_path() + "Threshold.exe"
+        tau_path_treamnet = self.get_taudem_path() + "Streamnet.exe"
 
         returns = "1"
         arg = (
@@ -287,8 +287,8 @@ class util:
             + shp_path
             + '"'
         )
-        re = self.Execute(arg)
-        self.MessageboxShowError("re", str(re))
+        re = self.execute(arg)
+        self.messagebox_show_error("re", str(re))
         if str(re) == "0":
             arg = (
                 '"'
@@ -303,8 +303,8 @@ class util:
                 + tem_output_2
                 + '"'
             )
-            re1 = self.Execute(arg)
-            self.MessageboxShowError("re1", str(re1))
+            re1 = self.execute(arg)
+            self.messagebox_show_error("re1", str(re1))
             if str(re1) == "0":
                 arg = (
                     '"'
@@ -327,8 +327,8 @@ class util:
                     + tem_output_2
                     + '"'
                 )
-                re2 = self.Execute(arg)
-                self.MessageboxShowError("re2", str(re2))
+                re2 = self.execute(arg)
+                self.messagebox_show_error("re2", str(re2))
                 if str(re2) == "0":
                     # stream Create
                     arg = (
@@ -346,8 +346,8 @@ class util:
                         + " -thresh "
                         + txtstream_cellvalue
                     )
-                    re3 = self.Execute(arg)
-                    self.MessageboxShowError("re3", str(re3))
+                    re3 = self.execute(arg)
+                    self.messagebox_show_error("re3", str(re3))
                     if str(re3) == "0":
                         arg = (
                             '"'
@@ -396,8 +396,8 @@ class util:
                         )
                         if str(flag) == "True":
                             arg = arg + " -sw"
-                        re4 = self.Execute(arg)
-                        self.MessageboxShowError("re4", str(re4))
+                        re4 = self.execute(arg)
+                        self.messagebox_show_error("re4", str(re4))
                         if str(re4) == "0":
                             returns = "0"
         return returns
@@ -409,10 +409,10 @@ class util:
         return output_temp
 
     # 콤보박스 리스트 셋팅 type은( tif, shp , "" 일땐 모두다)
-    def set_commbox(self, layers, commbox, type):
+    def set_commbox(self, layers: str, commbox: str, type: str):
         layer_list = []
 
-        if layers == None:
+        if layers is None:
             pass
         elif type.upper() == "TIF":
             for layer in layers:
@@ -438,14 +438,14 @@ class util:
         commbox.addItems(combolist)
 
     # 메시지 박스 출력
-    def messagebox_show_info(self, title, message):
+    def messagebox_show_info(self, title: str, message: str):
         QMessageBox.information(None, title, message)
 
-    def messagebox_show_error(self, title, message):
+    def messagebox_show_error(self, title: str, message: str):
         QMessageBox.warning(None, title, message)
 
     # 콤보 박스에서 선택된 레이어 경로 받아 오기
-    def get_combo_selected_layer_path(self, commbox):
+    def get_combo_selected_layer_path(self, commbox: str):
         layername = commbox.currentText()
         layer = None
         for lyr in QgsProject.instance().mapLayers().values():
@@ -499,17 +499,17 @@ class util:
         arg = '"{0}" -of AAIGrid -co FORCE_CELLSIZE=TRUE "{1}" "{2}"'.format(
             gdal_translate, inputfile, output
         )
-        result = self.Execute(arg)
+        result = self.execute(arg)
         if result >= 0:
             self.ASC_Header_replace(output)
             self.addlayer_output_file(output)
 
-    def convert_ascii_to_tiff(self, inputfile: str, out_file: str):
+    def convert_ascii_to_tiff(self, inputfile: str, out_file: str, qgis_path):
         gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
         arg = '"{0}" -of GTiff  "{1}" "{2}"'.format(
             gdal_translate, inputfile, qgis_path
         )
-        self.Execute(arg)
+        self.execute(arg)
         # self.addlayer_output_file(output)
 
     def convert_tiff_to_ascii_retpaht(self, inputfile: str):
@@ -522,7 +522,7 @@ class util:
             inputfile,
             output,
         )
-        result = self.Execute(arg)
+        result = self.execute(arg)
         return output
 
     # 레스터 레이어 목록 Qgis에 올리기
@@ -534,7 +534,7 @@ class util:
             layer = QgsRasterLayer(file_name, base_name, "gdal")
             QgsProject.instance().addMapLayer(layer)
 
-    #   QgsProject.instance().addRasterLayer(fileName, baseName)
+    #   QgsProject.instance().addRasterLayer(fileName, base_name)
 
     def vector_layer_add_layer(self, outputpath: str):
         file_name = outputpath
@@ -543,7 +543,7 @@ class util:
         layer = QgsVectorLayer(outputpath, base_name, "ogr")
         QgsProject.instance().addMapLayer(layer)
         if not layer:
-            self.MessageboxShowInfo(
+            self.messagebox_show_info(
                 "Vector layer add",
                 "Layer failed to load!",
             )
