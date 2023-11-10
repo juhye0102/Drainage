@@ -171,13 +171,13 @@ class Util:
         fd_layer: str,
         fa_layer: str,
         stream_layer: str,
-        txtoutput: str,
+        txt_output: str,
     ) -> str:
         output1 = self.get_temp_file_path(input_layer)
         output2 = output1.replace("tif", "dat")
         output3 = output1.replace("tif", "dat")
         output4 = output1.replace("tif", "shp")
-        output5 = txtoutput
+        output5 = txt_output
         input0 = input_layer
         input1 = fd_layer
         input2 = fa_layer
@@ -242,7 +242,7 @@ class Util:
         fa_layer: str,
         txtstream_cellvalue: str,
         shp_layer: str,
-        txtoutput: str,
+        txt_output: str,
         flag: str,
     ):
         # shape 파일의 경로를 받아 오면 경로상에 layerid가 붙어서 넘오옴 그래서 문자열 잘라서 사용
@@ -387,7 +387,7 @@ class Util:
                             + '"'
                             + " -w "
                             + '"'
-                            + txtoutput
+                            + txt_output
                             + '"'
                             + " -o "
                             + '"'
@@ -445,7 +445,7 @@ class Util:
         QMessageBox.warning(None, title, message)
 
     # 콤보 박스에서 선택된 레이어 경로 받아 오기
-    def get_combo_selected_layer_path(self, commbox: str):
+    def get_combo_selected_layerpath(self, commbox: str):
         layername = commbox.currentText()
         layer = None
         for lyr in QgsProject.instance().mapLayers().values():
