@@ -50,9 +50,9 @@ class Ui_WatershedDialogBase(object):
         self.btnOK = QtWidgets.QPushButton(WatershedDialogBase)
         self.btnOK.setObjectName("btnOK")
         self.gridLayout.addWidget(self.btnOK, 3, 3, 1, 1)
-        self.txtOutput = QtWidgets.QLineEdit(WatershedDialogBase)
-        self.txtOutput.setObjectName("txtOutput")
-        self.gridLayout.addWidget(self.txtOutput, 2, 1, 1, 3)
+        self.txt_output = QtWidgets.QLineEdit(WatershedDialogBase)
+        self.txt_output.setObjectName("txt_output")
+        self.gridLayout.addWidget(self.txt_output, 2, 1, 1, 3)
 
         self.retranslateUi(WatershedDialogBase)
         QtCore.QMetaObject.connectSlotsByName(WatershedDialogBase)
