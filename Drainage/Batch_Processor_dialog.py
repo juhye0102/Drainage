@@ -4,13 +4,13 @@ from qgis.PyQt.QtCore import QFileInfo
 from qgis.core import QgsProject, QgsRasterLayer
 import os
 from qgis.PyQt import uic
-from .Util import util
+from .Util import Util
 
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "Batch_Processor_dialog_base.ui")
 )
 
-_util = util()
+_util = Util
 
 
 class BatchProcessor(QDialog, FORM_CLASS):
@@ -23,8 +23,8 @@ class BatchProcessor(QDialog, FORM_CLASS):
     def select_combobox_event(self):
         index = self.cmbLayer.currentIndex()
         if index > 0:
-            self.LayerPath = _util.GetcomboSelectedLayerPath(self.cmbLayer)
-            self.Layername = _util.GetFilename(self.LayerPath)
+            self.LayerPath = _util.get_combo_selected_layerpath(self.cmbLayer)
+            self.Layername = _util.get_filename(self.LayerPath)
             self.txtFill.setText(self.Layername + "_Hydro")
             # self.txtFlat.setText(self.Layername + "_Flat")
             self.txtFD.setText(self.Layername + "_Fdr")
@@ -45,7 +45,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
 
     def click_okbutton(self):
         # 레이어 경로에 한글이 있으면 오류로 처리
-        if _util.CheckKorea(self.LayerPath):
+        if _util.check_korea(self.LayerPath):
             _util.messagebox_show_info(
                 "Batch Processor",
                 "\n The file path contains Korean. \n",
@@ -57,7 +57,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
             # _util.messagebox_show_info("1","asc")
             inputfile = self.LayerPath
             self.LayerPath = self.LayerPath.replace(ext, ".TIF")
-            _util.Convert_ASCii_To_TIFF(inputfile, self.LayerPath)
+            _util.convert_ascii_to_tiff(inputfile, self.LayerPath)
             # _util.messagebox_show_info("Layerpath",self.LayerPath)
 
             # return
@@ -72,29 +72,29 @@ class BatchProcessor(QDialog, FORM_CLASS):
             return
 
         # 파일 이름이 없는 텍스트 박스 확인
-        if self.checkTextbox(self.txtFill):
+        if self.check_textbox(self.txtFill):
             pass
         else:
             return
 
-        # self.checkTextbox(self.txtFlat)
+        # self.check_textbox(self.txtFlat)
 
-        if self.checkTextbox(self.txtFD):
+        if self.check_textbox(self.txtFD):
             pass
         else:
             return
 
-        if self.checkTextbox(self.txtFAC):
+        if self.check_textbox(self.txtFAC):
             pass
         else:
             return
 
-        if self.checkTextbox(self.txtSlope):
+        if self.check_textbox(self.txtSlope):
             pass
         else:
             return
 
-        if self.checkTextbox(self.txtStream):
+        if self.check_textbox(self.txtStream):
             pass
         else:
             return
@@ -116,9 +116,9 @@ class BatchProcessor(QDialog, FORM_CLASS):
             return
 
         if self.chkStream.isChecked():
-            self.checkTextbox(self.txtStreamVector)
+            self.check_textbox(self.txtStreamVector)
 
-        self.checkTextbox(self.txtCatchment)
+        self.check_textbox(self.txtCatchment)
 
         # 파일 경로 변수에 셋팅
         self.SettingValue()
@@ -259,12 +259,12 @@ class BatchProcessor(QDialog, FORM_CLASS):
             self.outFiles[3],
             self.outFiles[4],
         )
-        streamnet = '"C:\Program Files\TauDEM\TauDEM5Exe\StreamNet.exe" '
+        streamnet = '"C:\\Program Files\\TauDEM\\TauDEM5Exe\\StreamNet.exe" '
 
         return streamnet + args
 
     # 텍스트 박스에 파일 이름이 없는 경우 체크
-    def check_textbox(self, txt: str):
+    def check_textbox(self, txt: str) -> str:
         if txt.text() == "":
             _util.messagebox_show_info(
                 "Batch Processor",
@@ -292,15 +292,15 @@ class BatchProcessor(QDialog, FORM_CLASS):
         self.close()
 
     def convert_tiff_to_asc(self):
-        _util.Convert_TIFF_To_ASCii(self.Fill)
-        # _util.Convert_TIFF_To_ASCii(self.Flat)
-        _util.Convert_TIFF_To_ASCii(self.FD)
-        _util.Convert_TIFF_To_ASCii(self.FAC)
-        _util.Convert_TIFF_To_ASCii(self.Slope)
-        _util.Convert_TIFF_To_ASCii(self.Stream)
+        _util.convert_tiff_to_ascii(self.Fill)
+        # _util.convert_tiff_to_ascii(self.Flat)
+        _util.convert_tiff_to_ascii(self.FD)
+        _util.convert_tiff_to_ascii(self.FAC)
+        _util.convert_tiff_to_ascii(self.Slope)
+        _util.convert_tiff_to_ascii(self.Stream)
         if self.chkStream.isChecked():
-            _util.VectorLayer_AddLayer(self.StreamVector)
-        _util.Convert_TIFF_To_ASCii(self.Catchment)
+            _util.vector_layer_add_layer(self.StreamVector)
+        _util.convert_tiff_to_ascii(self.Catchment)
 
     def checkbox_stream(self):
         if self.chkStream.isChecked():
@@ -317,30 +317,30 @@ class BatchProcessor(QDialog, FORM_CLASS):
         self.setupUi(self)
         self.iface = iface
 
-        flat_path = os.path.dirname(os.path.abspath(__file__))
+        # flat_path = os.path.dirname(os.path.abspath(__file__))
 
         # 파일 경로 변수 선언
-        self.Settingfile()
+        self.setting_file()
 
         # 콤보 박스 레이어 셋팅
-        self.SetCombobox()
+        self.set_combobox()
 
         # 콤보 박스 선택 시 텍스트 창에 기본 파일 이름 적용
-        self.cmbLayer.currentIndexChanged.connect(self.SelectCombobox_event)
+        self.cmbLayer.currentIndexChanged.connect(self.select_combobox_event)
 
         # OK버튼 눌렀을때 처리 부분
-        self.btnOK.clicked.connect(self.Click_Okbutton)
+        self.btnOK.clicked.connect(self.click_okbutton)
         # self.btnOK.clicked.connect(self.CreateStreamVector)
 
         # Cancle버튼 클릭 이벤트
-        self.btnCancel.clicked.connect(self.Close_Form)
+        self.btnCancel.clicked.connect(self.close_form)
 
         # # 라디오 버튼 기본 설정
-        self.chkStream.stateChanged.connect(self.checkbox_Stream)
+        self.chkStream.stateChanged.connect(self.checkbox_stream)
         self.chkStream.setChecked(True)
         self.checkbox_Stream()
 
         # Stream chk와 label 연동
         # QObject.connect(self.lblStream, SIGNAL("clicked()"),
         # self.setStreamChecked)
-        self.lblStream.mouseReleaseEvent = self.setStreamChecked
+        self.lblStream.mouseReleaseEvent = self.set_stream_checked
