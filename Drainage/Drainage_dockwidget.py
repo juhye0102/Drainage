@@ -1,11 +1,11 @@
 # -*- coding: utf-8 -*-
 
+from importlib import util
 import os
 from qgis.PyQt import uic, QtWidgets, QtGui
 from qgis.PyQt.QtCore import pyqtSignal
 
 # import Qtree
-from .Util import util
 from .Watershed_dialog import WatershedDialog
 from .Batch_Processor_dialog import BatchProcessor
 
@@ -18,8 +18,8 @@ FORM_CLASS, _ = uic.loadUiType(
 
 # 아이콘 경로들 임 추후에 변경 할것임
 path = os.path.dirname(os.path.realpath(__file__))
-Drainage_icon = path + "\image\internet.png"
-Cube = path + "\image\cube.png"
+Drainage_icon = path + "\\image\\internet.png"
+Cube = path + "\\image\\cube.png"
 _util = util()
 
 
@@ -78,18 +78,19 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         elif select_item == "Create OutletPoint Layer and Draw OutletPoint":
             _util.messagebox_show_info(
                 "info",
-                "The base layer and coordinate information must be created identically.",
+                "The base layer and coordinate",
+                "information must be created identically.",
             )
             self.iface.actionNewVectorLayer().trigger()
             # Edit 상태로 변환
-            layer = self.iface.activeLayer()
+            # layer = self.iface.activeLayer()
             # ADD 상태
             self.iface.actionAddFeature().trigger()
         elif select_item == "Watershed":
             results_dialog = WatershedDialog()
             results_dialog.exec_()
         elif select_item == "Helps":
-            results_dialog = Watershed_SetupDialog()
+            results_dialog = Watershed_StetupDialog()
             results_dialog.exec_()
 
     def close_event(self, event):
