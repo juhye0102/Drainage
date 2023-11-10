@@ -10,9 +10,8 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.QtCore import QFileInfo
 from qgis.core import QgsVectorLayer, QgsRasterLayer, QgsProject
 import os
-from qgis.PyQt.QtCore import QtCore
-from qgis.PyQt import QtGui, uic
-from Util import util
+from qgis.PyQt import QtGui, uic, QtCore
+from Util import Util
 
 FORM_CLASS, _ = uic.loadUiType(
     os.path.join(os.path.dirname(__file__), "Watershed_dialog_base.ui")
@@ -20,13 +19,13 @@ FORM_CLASS, _ = uic.loadUiType(
 
 
 _Prj_Back_Path = ""
-_util = util()
+_util = Util()
 
 
 class WatershedDialog(QDialog, FORM_CLASS):
     # 저장 위치 출력 다이얼 로그
     def select_output_file(self):
-        self.txtOutput.clear()
+        self.txt_output.clear()
         dir = os.path.dirname(self.TifPath)
         if self.TifPath != "" and os.path.isdir(dir):
             filename = QFileDialog.getSaveFileName(
@@ -36,18 +35,18 @@ class WatershedDialog(QDialog, FORM_CLASS):
             filename = QFileDialog.getSaveFileName(
                 self, "select output file ", os.getcwd(), "*.tif"
             )[0]
-        self.txtOutput.setText(filename)
+        self.txt_output.setText(filename)
 
     # 콤보 박스에서 선택한 레이어의 경로 받아오기
     def get_combobox_layerpath(self, combo: str, txt: str):
         if combo.currentIndex() != 0:
             if txt == "tif":
-                self.TifPath = _util.GetcomboSelectedLayerPath(combo)
+                self.TifPath = _util.get_combo_selected_layerpath(combo)
             elif txt == "shp":
-                self.Shape = _util.GetcomboSelectedLayerPath(combo).split("|")[0]
+                self.Shape = _util.get_combo_selected_layerpath(combo).split("|")[0]
 
     # 레이어 목록 Qgis에 올리기
-    def addlayer_output_file(self, outputpath: str):
+    def addlayer_output_file(self, outputpath: str) -> str:
         if os.path.isfile(outputpath):
             file_name = outputpath
             file_info = QFileInfo(file_name)
@@ -56,8 +55,8 @@ class WatershedDialog(QDialog, FORM_CLASS):
             QgsProject.instance().addMapLayer(layer)
 
     def click_okbutton(self):
-        self.Get_ComboBox_LayerPath(self.cmbLayers, "tif")
-        self.Get_ComboBox_LayerPath(self.cmbShape, "shp")
+        self.get_combobox_layerpath(self.cmbLayers, "tif")
+        self.get_combobox_layerpath(self.cmbShape, "shp")
 
         # 콤보박스 레이어 선택 하지 않았을때
         r_index = self.cmbLayers.currentIndex()
@@ -80,16 +79,16 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         # 텍스트 박스에 결과 파일 경로가 없을때 오류 메시지 출력
-        if self.txtOutput.text() == "":
+        if self.txt_output.text() == "":
             _util.messagebox_show_info(
                 "Watershed",
                 "\n File path not selected. \n",
             )
-            self.txtOutput.setFocus()
+            self.txt_output.setFocus()
             return
 
         # True 면 한글 포함 하고 있음, False 면 한글 없음
-        if _util.CheckKorea(self.txtOutput.text()):
+        if _util.check_korea(self.txt_output.text()):
             _util.messagebox_show_info(
                 "Watershed",
                 "\n The file path contains Korean. \n",
@@ -97,7 +96,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         # 선택된 레이어 경로 한글 체크
-        if _util.CheckKorea(self.TifPath):
+        if _util.check_korea(self.TifPath):
             _util.messagebox_show_info(
                 "Watershed",
                 "\n selected raster layer path contains Korean. \n",
@@ -105,7 +104,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         # 선택된 레이어 경로 한글 체크
-        if _util.CheckKorea(self.Shape):
+        if _util.check_korea(self.Shape):
             _util.messagebox_show_info(
                 "Watershed",
                 "\n selected shape layer path contains Korean. \n",
@@ -113,7 +112,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         # True 이면 기존 파일 존재함
-        if _util.CheckFile(self.txtOutput.text()):
+        if _util.check_file(self.txt_output.text()):
             _util.messagebox_show_info(
                 "Watershed",
                 "\n A file with the same name already exists. \n",
@@ -121,33 +120,30 @@ class WatershedDialog(QDialog, FORM_CLASS):
             return
 
         # 레스터 레이어
-        base_name = _util.GetFilename(self.TifPath)
+        base_name = _util.get_filename(self.TifPath)
         rlayer = QgsRasterLayer(self.TifPath, base_name)
         if rlayer.isValid():
-            self.rcsr = self.layerCRS(rlayer)
+            self.rcsr = self.layer_crs(rlayer)
         else:
             self.rcsr = ""
         # 벡터 레이어
-        name = _util.GetFilename(self.Shape)
+        name = _util.get_filename(self.Shape)
         vlayer = QgsVectorLayer(self.Shape, name, "ogr")
         if vlayer.isValid():
-            self.scsr = self.layerCRS(vlayer)
+            self.scsr = self.layer_crs(vlayer)
         if self.rcsr != self.scsr:
-            self.aboutApp()
-            # _util.messagebox_show_info(" Caution!!",
-            # "If the coordinate system of the two layers are different,
-            # there may be a problem in the watershed processing. ")
-        self.checkPrjFile(self.Shape)
+            self.about_app()
+        self.check_prj_file(self.Shape)
 
         # 타우프로그램 실행 시킬 arg 문자열 받아 오기
-        arg = _util.GetWatershed(self.TifPath, self.Shape, self.txtOutput.text())
+        arg = _util.get_watershed(self.TifPath, self.Shape, self.txt_output.text())
         print(arg)
-        return_value = _util.Execute(arg)
+        return_value = _util.execute(arg)
         print("return_value : " + str(return_value))
         if return_value >= 0:
-            # self.Addlayer_OutputFile(self.txtOutput.text())
+            # self.Addlayer_OutputFile(self.txt_output.text())
             self.check_prj_file_back()
-            _util.Convert_TIFF_To_ASCii(self.txtOutput.text())
+            _util.convert_tiff_to_ascii(self.txt_output.text())
             print("Convert_TIFF_To_ASCii ")
             _util.messagebox_show_info("Watershed", "processor complete")
             self.close()
@@ -163,16 +159,16 @@ class WatershedDialog(QDialog, FORM_CLASS):
         global _Prj_Back_Path
         file_ex = os.path.splitext(shapefile)
         ext = file_ex[1]
-        ext2 = _util.GetFilename(shapefile)
+        ext2 = _util.get_filename(shapefile)
         replace_file = shapefile.replace(ext, ".prj")
 
         backfile = replace_file.replace(ext2, ext2 + "_back")
         _Prj_Back_Path = backfile
-        if _util.CheckFile(replace_file):
+        if _util.check_file(replace_file):
             os.rename(replace_file, backfile)
 
     def check_prj_file_back(self):
-        if _util.CheckFile(_Prj_Back_Path):
+        if _util.check_file(_Prj_Back_Path):
             reback_name_file = _Prj_Back_Path.replace("_back", "")
             os.rename(_Prj_Back_Path, reback_name_file)
 
@@ -192,7 +188,7 @@ class WatershedDialog(QDialog, FORM_CLASS):
             + "{0},{1}</font><br><br>".format(website, email + "comictagger@gma")
         )
 
-        self.addGroupWidget(msg_box)
+        self.add_group_widget(msg_box)
         ret = msg_box.exec_()
         if ret == QMessageBox.AcceptRole:
             pass
@@ -236,17 +232,17 @@ class WatershedDialog(QDialog, FORM_CLASS):
         #         self.setFixedSize(self.size())
 
         # LineEdit 컨트롤러 초기화
-        self.txtOutput.clear()
+        self.txt_output.clear()
 
         # 레이어목록 콤보 박스 리스트 넣기 이벤트
         layers = QgsProject.instance().mapLayers().values()
 
         # 전달인자 layer 목록, 콤보박스,layertype("tif" or "shp" or ""-->전체 목록)
-        _util.SetCommbox(layers, self.cmbLayers, "tif")
-        _util.SetCommbox(layers, self.cmbShape, "shp")
+        _util.set_commbox(layers, self.cmbLayers, "tif")
+        _util.set_commbox(layers, self.cmbShape, "shp")
 
         # 다이얼 로그 버튼 눌렀을때 파일 저장 경로 설정 이벤트
-        self.btnOpenDialog.clicked.connect(self.Select_Ouput_File)
+        self.btnOpenDialog.clicked.connect(self.select_output_file)
 
         # OK버튼 눌렀을때 처리 부분
         self.btnOK.clicked.connect(self.click_okbutton)
