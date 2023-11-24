@@ -10,19 +10,16 @@ from qgis.PyQt.QtWidgets import (
 from qgis.PyQt.QtCore import QFileInfo
 from qgis.core import QgsVectorLayer, QgsRasterLayer, QgsProject
 import os
-from qgis.PyQt import QtGui, uic, QtCore
-from Util import Util
-
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "Watershed_dialog_base.ui")
-)
+from qgis.PyQt import QtGui, QtCore
+from .Util import Util
+from .Watershed_dialog_base import UiWatershedDialogBase
 
 
 _Prj_Back_Path = ""
 _util = Util()
 
 
-class WatershedDialog(QDialog, FORM_CLASS):
+class WatershedDialog(QDialog, UiWatershedDialogBase):
     # 저장 위치 출력 다이얼 로그
     def select_output_file(self):
         self.txt_output.clear()
