@@ -3,21 +3,18 @@ from qgis.PyQt.QtWidgets import QDialog
 from qgis.PyQt.QtCore import QFileInfo
 from qgis.core import QgsProject, QgsRasterLayer
 import os
-from qgis.PyQt import uic
 from .Util import Util
-
-FORM_CLASS, _ = uic.loadUiType(
-    os.path.join(os.path.dirname(__file__), "Batch_Processor_dialog_base.ui")
-)
-
-_util = Util
+from .Batch_Processor_dialog_base import UiWatershedDialogBase
 
 
-class BatchProcessor(QDialog, FORM_CLASS):
+_util = Util()
+
+
+class BatchProcessor(QDialog, UiWatershedDialogBase):
     # 레이어 목록 콤보 박스 셋팅
     def set_combobox(self):
         layers = QgsProject.instance().mapLayers().values()
-        _util.SetCommbox(layers, self.cmbLayer, "tif")
+        _util.set_commbox(layers, self.cmbLayer, "tif")
 
     # 콤보 박스 선택시 이벤트 처리
     def select_combobox_event(self):
@@ -34,7 +31,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
             self.txtStreamVector.setText(self.Layername + "_Stream_polyline")
             self.txtCatchment.setText(self.Layername + "_Catchment")
 
-    def is_int(self, any_number_or_string: int):
+    def is_int(self, any_number_or_string: bool):
         try:
             int(
                 any_number_or_string
@@ -107,8 +104,8 @@ class BatchProcessor(QDialog, FORM_CLASS):
             self.txtCellValue.setFocus()
             return False
 
-        vlaue = self.txtCellValue.text()
-        if not self.isInt(vlaue):
+        value = self.txtCellValue.text()
+        if not self.is_int(value):
             _util.messagebox_show_error(
                 "Batch Processor",
                 " Please enter only integers. ",
@@ -121,53 +118,53 @@ class BatchProcessor(QDialog, FORM_CLASS):
         self.check_textbox(self.txtCatchment)
 
         # 파일 경로 변수에 셋팅
-        self.SettingValue()
+        self.setting_value()
 
         # Fill sink 시작
-        arg = _util.GetTaudemArg(
+        arg = _util.get_taudem_arg(
             self.LayerPath, self.Fill, _util.tauDEMCommand.SK, False, 0
         )
-        result_fill = self.ExecuteArg(arg, self.Fill)
+        result_fill = self.execute_arg(arg)
 
         if result_fill:
             # FD 시작
-            arg = _util.GetTaudemArg(
+            arg = _util.get_taudem_arg(
                 self.Fill, self.FD, _util.tauDEMCommand.FD, False, 0
             )
-            fill_result = self.ExecuteArg(arg, self.FD)
+            fill_result = self.execute_arg(arg, self.FD)
             if fill_result:
                 # FA 시작
-                arg = _util.GetTaudemArg(
+                arg = _util.get_taudem_arg(
                     self.FD, self.FAC, _util.tauDEMCommand.FA, False, 0
                 )
-                fac_result = self.ExecuteArg(arg, self.FAC)
+                fac_result = self.execute_arg(arg, self.FAC)
                 if fac_result:
                     # Slope 시작
-                    arg = _util.GetTaudemArg(
+                    arg = _util.get_taudem_arg(
                         self.Fill, self.Slope, _util.tauDEMCommand.SG, False, 0
                     )
-                    slop_result = self.ExecuteArg(arg, self.Slope)
+                    slop_result = self.execute_arg(arg, self.Slope)
                     if slop_result:
                         # Stream 시작
                         cell_value = self.txtCellValue.text()
-                        arg = _util.GetTaudemArg(
+                        arg = _util.get_taudem_arg(
                             self.FAC,
                             self.Stream,
                             _util.tauDEMCommand.ST,
                             False,
                             cell_value,
                         )
-                        stream_result = self.ExecuteArg(arg, self.Stream)
+                        stream_result = self.execute_arg(arg, self.Stream)
                         if stream_result:
-                            arg = self.CreateStreamVector()
+                            arg = self.create_stream_vector()
 
-                            stream_vector_result = self.ExecuteArg(
+                            stream_vector_result = self.execute_arg(
                                 arg, self.StreamVector
                             )
                             if stream_vector_result:
                                 # tif 파일 asc 파일로 변환
-                                self.ConvertTiff_To_Asc()
-                                self.Delete_tempfile()
+                                self.convert_tiff_to_asc()
+                                self.delete_tempfile()
                                 _util.messagebox_show_info(
                                     "Batch processor",
                                     "The process is complete.",
@@ -175,8 +172,8 @@ class BatchProcessor(QDialog, FORM_CLASS):
                                 self.close()
 
     # arg 받아서 처리 완료 되면 레이어  Qgis 에서 올림
-    def execute_arg(self, arg: str) -> bool:
-        return_value = _util.Execute(arg)
+    def execute_arg(self, arg):
+        return_value = _util.execute(arg)
         if return_value == 0:
             # self.Addlayer_OutputFile(outpath)
             return True
@@ -207,29 +204,19 @@ class BatchProcessor(QDialog, FORM_CLASS):
     # 파일 경로 변수에 셋팅
     def setting_value(self):
         self.Fill = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtFill.text() + ".tif",
+            os.path.dirname(self.LayerPath) + "\\" + self.txtFill.text() + ".tif"
         )
-        self.FD = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtFD.text() + ".tif",
-        )
+        self.FD = os.path.dirname(self.LayerPath) + "\\" + self.txtFD.text() + ".tif"
 
-        self.FAC = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtFAC.text() + ".tif",
-        )
+        self.FAC = os.path.dirname(self.LayerPath) + "\\" + self.txtFAC.text() + ".tif"
         self.Slope = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtSlope.text() + ".tif",
+            os.path.dirname(self.LayerPath) + "\\" + self.txtSlope.text() + ".tif"
         )
         self.Stream = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtStream.text() + ".tif",
+            os.path.dirname(self.LayerPath) + "\\" + self.txtStream.text() + ".tif"
         )
         self.Catchment = (
-            os.path.dirname(self.LayerPath),
-            +"\\" + self.txtCatchment.text() + ".tif",
+            os.path.dirname(self.LayerPath) + "\\" + self.txtCatchment.text() + ".tif"
         )
         self.StreamVector = (
             os.path.dirname(self.LayerPath)
@@ -338,7 +325,7 @@ class BatchProcessor(QDialog, FORM_CLASS):
         # # 라디오 버튼 기본 설정
         self.chkStream.stateChanged.connect(self.checkbox_stream)
         self.chkStream.setChecked(True)
-        self.checkbox_Stream()
+        self.checkbox_stream()
 
         # Stream chk와 label 연동
         # QObject.connect(self.lblStream, SIGNAL("clicked()"),
