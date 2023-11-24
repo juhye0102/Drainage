@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-from importlib import util
 import os
 from qgis.PyQt import uic, QtWidgets, QtGui
 from qgis.PyQt.QtCore import pyqtSignal
@@ -8,6 +7,7 @@ from qgis.PyQt.QtCore import pyqtSignal
 # import Qtree
 from .Watershed_dialog import WatershedDialog
 from .Batch_Processor_dialog import BatchProcessor
+from .Util import Util
 
 # from SetupGRM_dialog import SetupGRMDialog
 
@@ -20,7 +20,7 @@ FORM_CLASS, _ = uic.loadUiType(
 path = os.path.dirname(os.path.realpath(__file__))
 Drainage_icon = path + "\\image\\internet.png"
 Cube = path + "\\image\\cube.png"
-_util = util()
+_util = Util()
 
 
 class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
@@ -32,9 +32,9 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.iface = iface
         self.setupUi(self)
         # 트리 위젯에 메뉴 항목을 넣는 부분임
-        self.initUI()
+        self.initUi()
 
-    def init_ui(self):
+    def initUi(self):
         self.setWindowTitle("Drainage")
         # 배경 색상 회색
         # self.treeWidget.setStyleSheet("background-color: gray;")
@@ -46,7 +46,7 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
 
         # Qtree 박스에 헤더 부분 제거
         self.treeWidget.setHeaderHidden(True)
-        result = _util.CheckTaudem()
+        result = _util.check_taudem()
         if result is False:
             _util.messagebox_show_error("Drainage", "Taudem is not installed.")
         item10 = QtWidgets.QTreeWidgetItem(self.treeWidget, ["Drainage"])
@@ -67,9 +67,9 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
         self.mainLayout = QtWidgets.QGridLayout(self)
         self.mainLayout.addWidget(self.treeWidget)
         # 더블 클릭 했을대 메뉴 명칭 확인
-        self.treeWidget.itemDoubleClicked.connect(self.onDoubleClick)
+        self.treeWidget.itemDoubleClicked.connect(self.on_double_click)
 
-    def on_double_click(self, item):
+    def on_double_click(self, item: str):
         select_item = item.text(0)
 
         if select_item == "Batch Processor":
@@ -77,9 +77,8 @@ class DrainageDockWidget(QtWidgets.QDockWidget, FORM_CLASS):
             results_dialog.exec_()
         elif select_item == "Create OutletPoint Layer and Draw OutletPoint":
             _util.messagebox_show_info(
-                "info",
-                "The base layer and coordinate",
-                "information must be created identically.",
+                "Info",
+                "The base layer and coordinate information must be created identically.",
             )
             self.iface.actionNewVectorLayer().trigger()
             # Edit 상태로 변환
