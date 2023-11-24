@@ -50,7 +50,7 @@ class Util:
     def get_taudem_arg(
         self,
         inputfile: str,
-        ouputfile: str,
+        outputfile: str,
         taudemcommand: str,
         facoption: str,
         optionvalue: str,
@@ -58,8 +58,8 @@ class Util:
         option = optionvalue
         tau_path = self.get_taudem_path()
         input = inputfile.replace("\\", "\\\\")
-        output = ouputfile.replace("\\", "\\\\")
-        output_temp = self.get_temp_file_path(ouputfile)
+        output = outputfile.replace("\\", "\\\\")
+        output_temp = self.get_temp_file_path(outputfile)
 
         arg = ""
         if taudemcommand == self.tauDEMCommand.SK:
@@ -409,7 +409,7 @@ class Util:
         return output_temp
 
     # 콤보박스 리스트 셋팅 type은( tif, shp , "" 일땐 모두다)
-    def set_commbox(self, layers: str, commbox: str, type: str):
+    def set_commbox(self, layers: str, commbox: str, type):
         layer_list = []
 
         if layers is None:
@@ -445,7 +445,7 @@ class Util:
         QMessageBox.warning(None, title, message)
 
     # 콤보 박스에서 선택된 레이어 경로 받아 오기
-    def get_combo_selected_layerpath(self, commbox: str):
+    def get_combo_selected_layerpath(self, commbox):
         layername = commbox.currentText()
         layer = None
         for lyr in QgsProject.instance().mapLayers().values():
@@ -476,7 +476,7 @@ class Util:
             return False
 
     # 폴더및 파일 명칭에 한글 포함하고 있는지 체크
-    def check_korea(self, string: str):
+    def check_korea(self, string):
         #         sys.setdefaultencoding('utf-8')
         strs = re.sub("[^가-힣]", "", string)
         if len(strs) > 0:
@@ -505,7 +505,7 @@ class Util:
             self.addlayer_output_file(output)
 
     def convert_ascii_to_tiff(self, inputfile: str, out_file: str, qgis_path):
-        gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
+        gdal_translate = "C:\\Program Files\\GDAL\\gdal_translate.exe"
         arg = '"{0}" -of GTiff  "{1}" "{2}"'.format(
             gdal_translate, inputfile, qgis_path
         )
@@ -516,13 +516,13 @@ class Util:
         extension = ""
         extension = os.path.splitext(inputfile)[1]
         output = inputfile.replace(extension, "_Flat.asc")
-        gdal_translate = "C:\Program Files\GDAL\gdal_translate.exe"
+        gdal_translate = "C:\\Program Files\\GDAL\\gdal_translate.exe"
         arg = '"{0}" -of AAIGrid "{1}" "{2}"'.format(
             gdal_translate,
             inputfile,
             output,
         )
-        result = self.execute(arg)
+        # result = self.execute(arg)
         return output
 
     # 레스터 레이어 목록 Qgis에 올리기
