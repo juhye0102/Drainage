@@ -1,22 +1,22 @@
 from qgis.PyQt import QtCore, QtWidgets
 
 
-class Ui_WatershedDialogBase(object):
-    def setupUi(self, WatershedDialogBase):
-        WatershedDialogBase.setObjectName("WatershedDialogBase")
-        WatershedDialogBase.resize(400, 320)
+class UiWatershedDialogBase(object):
+    def setupUi(self, watershed_dialog_base: str) -> str:
+        watershed_dialog_base.setObjectName("watershed_dialog_base")
+        watershed_dialog_base.resize(400, 320)
         sizePolicy = QtWidgets.QSizePolicy(
             QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Preferred
         )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(
-            WatershedDialogBase.sizePolicy().hasHeightForWidth()
+            watershed_dialog_base.sizePolicy().hasHeightForWidth()
         )
-        WatershedDialogBase.setSizePolicy(sizePolicy)
-        self.gridLayout = QtWidgets.QGridLayout(WatershedDialogBase)
+        watershed_dialog_base.setSizePolicy(sizePolicy)
+        self.gridLayout = QtWidgets.QGridLayout(watershed_dialog_base)
         self.gridLayout.setObjectName("gridLayout")
-        self.groupBox_3 = QtWidgets.QGroupBox(WatershedDialogBase)
+        self.groupBox_3 = QtWidgets.QGroupBox(watershed_dialog_base)
         self.groupBox_3.setTitle("")
         self.groupBox_3.setObjectName("groupBox_3")
         self.gridLayout_3 = QtWidgets.QGridLayout(self.groupBox_3)
@@ -77,7 +77,9 @@ class Ui_WatershedDialogBase(object):
         )
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.txtFD.sizePolicy().hasHeightForWidth())
+        sizePolicy.setHeightForWidth(
+            self.txtFD.sizePolicy().hasHeightForWidth(),
+        )
         self.txtFD.setSizePolicy(sizePolicy)
         self.txtFD.setObjectName("txtFD")
         self.gridLayout_3.addWidget(self.txtFD, 2, 1, 1, 2)
@@ -214,34 +216,94 @@ class Ui_WatershedDialogBase(object):
         self.gridLayout_2.addWidget(self.label_9, 2, 1, 1, 2)
         self.gridLayout_3.addWidget(self.groupBox, 14, 0, 1, 3)
         self.gridLayout.addWidget(self.groupBox_3, 0, 0, 1, 3)
-        self.btnCancel = QtWidgets.QPushButton(WatershedDialogBase)
+        self.btnCancel = QtWidgets.QPushButton(watershed_dialog_base)
         self.btnCancel.setObjectName("btnCancel")
         self.gridLayout.addWidget(self.btnCancel, 1, 2, 1, 1)
-        self.btnOK = QtWidgets.QPushButton(WatershedDialogBase)
+        self.btnOK = QtWidgets.QPushButton(watershed_dialog_base)
         self.btnOK.setObjectName("btnOK")
         self.gridLayout.addWidget(self.btnOK, 1, 1, 1, 1)
         self.lblStream.setBuddy(self.chkStream)
 
-        self.retranslateUi(WatershedDialogBase)
-        QtCore.QMetaObject.connectSlotsByName(WatershedDialogBase)
+        self.retranslate_ui(watershed_dialog_base)
+        QtCore.QMetaObject.connectSlotsByName(watershed_dialog_base)
 
-    def retranslateUi(self, WatershedDialogBase):
+    def retranslate_ui(self, watershed_dialog_base: str) -> str:
         _translate = QtCore.QCoreApplication.translate
-        WatershedDialogBase.setWindowTitle(
-            _translate("WatershedDialogBase", "Batch Processor")
+        watershed_dialog_base.setWindowTitle(
+            _translate("watershed_dialog_base", "Batch Processor")
         )
-        self.lblCatchment.setText(_translate("WatershedDialogBase", "Catchment : "))
-        self.label_7.setText(_translate("WatershedDialogBase", "Flow Accumulation : "))
-        self.label_5.setText(_translate("WatershedDialogBase", "Flow Direction : "))
-        self.label_8.setText(_translate("WatershedDialogBase", "Slope : "))
-        self.label_2.setText(_translate("WatershedDialogBase", "Fill Sink : "))
-        self.label.setText(_translate("WatershedDialogBase", "Elevation : "))
-        self.groupBox.setTitle(_translate("WatershedDialogBase", "Stream"))
-        self.label_4.setText(_translate("WatershedDialogBase", "Threshold Value : "))
+        self.lblCatchment.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Catchment : ",
+            )
+        )
+        self.label_7.setText(
+            _translate("watershed_dialog_base", "Flow Accumulation : ")
+        )
+        self.label_5.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Flow Direction : ",
+            )
+        )
+        self.label_8.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Slope : ",
+            )
+        )
+        self.label_2.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Fill Sink : ",
+            )
+        )
+        self.label.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Elevation : ",
+            )
+        )
+        self.groupBox.setTitle(
+            _translate(
+                "watershed_dialog_base",
+                "Stream",
+            )
+        )
+        self.label_4.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Threshold Value : ",
+            )
+        )
         self.label_6.setText(
-            _translate("WatershedDialogBase", "(Flow accumulation value)")
+            _translate(
+                "watershed_dialog_base",
+                "(Flow accumulation value)",
+            )
         )
-        self.lblStream.setText(_translate("WatershedDialogBase", "Make polyline : "))
-        self.label_9.setText(_translate("WatershedDialogBase", "Raster file : "))
-        self.btnCancel.setText(_translate("WatershedDialogBase", "Cancel"))
-        self.btnOK.setText(_translate("WatershedDialogBase", "OK"))
+        self.lblStream.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Make polyline : ",
+            )
+        )
+        self.label_9.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Raster file : ",
+            )
+        )
+        self.btnCancel.setText(
+            _translate(
+                "watershed_dialog_base",
+                "Cancel",
+            )
+        )
+        self.btnOK.setText(
+            _translate(
+                "watershed_dialog_base",
+                "OK",
+            )
+        )
