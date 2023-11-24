@@ -19,6 +19,8 @@ class Drainage:
     def __init__(self, iface):
         # Save reference to the QGIS interface
         self.iface = iface
+        self.dlg = DrainageDockWidget(iface=self.iface)
+
         # initialize plugin directory
         self.plugin_dir = os.path.dirname(__file__)
         # initialize locale
@@ -81,7 +83,7 @@ class Drainage:
 
         return action
 
-    def init_gui(self):
+    def initGui(self):
         """Create the menu entries and toolbar icons inside the QGIS GUI."""
 
         icon_path = ":/plugins/drainage/icon.png"
@@ -101,14 +103,14 @@ class Drainage:
             self.iface.removePluginMenu(self.tr("&Drainage"), action)
             self.iface.removeToolBarIcon(action)
 
+        self.iface.removeDockWidget(self.dlg)
+
     def run(self):
         """Run method that performs all the real work"""
 
         if self.first_start is True:
-            self.first_start = False
-            self.dlg = DrainageDockWidget(iface=self.iface)
-
             self.iface.addDockWidget(Qt.RightDockWidgetArea, self.dlg)
+            self.first_start = False
 
         # show the dialog
         self.dlg.show()
